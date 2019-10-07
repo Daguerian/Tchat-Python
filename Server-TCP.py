@@ -3,7 +3,7 @@ import sys
 import threading
 import time
 import sys
-
+####TEST###
 serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serveur.bind(('192.168.43.204', 6789))
 print ('Serveur hebergé sur ',socket.gethostname())
