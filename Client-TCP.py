@@ -2,7 +2,7 @@ import socket
 import sys
 import threading
 import time
-###Test###
+
 x = 0
 Reçu = 0
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
