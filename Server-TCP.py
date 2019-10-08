@@ -2,8 +2,6 @@ import socket
 import sys
 import threading
 import time
-import sys
-
 
 serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serveur.bind(('localhost', 6789))
@@ -21,7 +19,6 @@ def Stop():		#Re-def only arret, a integrer plus bas dans un if
 	client.close()
 	print ('Arret du serveur')
 	serveur.close() #Appel a la variable serveur ligne 7
-	sys.exit()
 
 
 def Reception():
@@ -37,13 +34,14 @@ def Reception():
 		
 		if x == 5:
 			Stop()
-		
+			break
 		if Reçu.lower() == ('deconnexion'):
 			print(NomClient,'deconecté')
-			Stop()
-			
+			Stop() 
+			break
 		else:
 			print (NomClient, ' : ', Reçu)
+
 
 ThreadReception = threading.Thread(target=Reception)
 

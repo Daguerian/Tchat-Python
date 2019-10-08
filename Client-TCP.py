@@ -33,6 +33,11 @@ def Reception():
 			if x == 5:
 				print ('Fermeture de la connexion')
 				client.close()
+				break
+		if Reçu.lower() == ('arret'):
+				print ('Arret du serveur. Deconnexion client')
+				client.close()
+				exit()
 
 ThreadReception = threading.Thread(target=Reception)
 ThreadReception.start()
