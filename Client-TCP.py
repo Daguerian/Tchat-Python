@@ -8,8 +8,17 @@ x = 0
 Reçu = 0
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print ('Client demarré \nConnexion au serveur')
-IPserveur = input('saisissez l\'adresse IP sur serveur: ')
-client.connect((IPserveur, 6789)) #Connexion au serveur
+
+while True:
+	IPserveur = input('saisissez l\'adresse IP sur serveur: ')
+	if IPserveur == "":
+		pass
+	else:
+		try:
+			client.connect((IPserveur, 6789)) #Connexion au serveur
+		except:
+			print ('Impossible de se connecter à "{}"'.format(IPserveur))
+			exit()
 
 NomClient = (socket.gethostname())		#Envoi Nom du client
 NomClient = NomClient.encode('UTF-8')

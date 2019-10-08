@@ -3,10 +3,15 @@ import sys
 import threading
 import time
 
+Host, Port = input('Adresse Host: '), 6789
 serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-serveur.bind(('localhost', 6789))
-print ('Serveur hebergé sur ',socket.gethostname())
-serveur.listen(3) #3 connexions maxi
+try:
+	serveur.bind((Host, Port))
+except:
+	print ('Impossible dheberger le serveur sur ',Host, Port)
+	exit()
+
+print ('Serveur hebergé sur ',Host, Port, '\n', socket.gethostname())
 
 x = 0
 Reçu = True
@@ -49,7 +54,7 @@ ThreadReception = threading.Thread(target=Reception)
 
 ### Demarrage Programme ###
 print ('Serveur démarré. \nEn attente de connexion...\n')
-
+serveur.listen(3) #3 connexions maxi
 client, AdresseClient = serveur.accept()  #client peux etre remplacé par Client1
 #Blocage tant que le client n'est pas connecté
 
