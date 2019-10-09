@@ -11,11 +11,12 @@ print ('Client demarré \nConnexion au serveur')
 
 while True:
 	IPserveur = input('saisissez l\'adresse IP sur serveur: ')
-	if IPserveur == "":
+	if not IPserveur:
 		pass
 	else:
 		try:
 			client.connect((IPserveur, 6789)) #Connexion au serveur
+			break
 		except:
 			print ('Impossible de se connecter à "{}"'.format(IPserveur))
 			exit()
@@ -26,7 +27,7 @@ client.send(NomClient)
 
 données = client.recv(1024)				#Reception Nom Serveur
 NomServeur = données.decode('UTF-8')
-print ('Connecté à ',NomServeur,'depuis',socket.gethostname())
+print ('Connecté à ', NomServeur,'depuis',socket.gethostname())
 
 def Reception():
 	global x
@@ -52,16 +53,16 @@ ThreadReception = threading.Thread(target=Reception)
 ThreadReception.start()
 
 while True:
-	Message = input('Saisissez: ')
-	if Message.lower() == 'deconnexion':
-		client.send(Message.encode('UTF-8'))
+	Saisie = input('Saisissez: ')
+	if Saisie.lower() == 'deconnexion':
+		client.send(Saisie.encode('UTF-8'))
 		client.close() #Appel a la variable client ligne 7
 		print ('Deconecté.')
 		break
 	else:
-		MessageEncodé = Message.encode('utf-8')
-		n = client.send (MessageEncodé)
-		if (n!= len(Message)) or Message == (''):
+		Message = Saisie.encode('utf-8')
+		n = client.send (Message)
+		if (n!= len(Saisie)) or Saisie == (''):
 			print ('Erreur d\'envoi')
 		else:
 			print ('Message envoyé.')

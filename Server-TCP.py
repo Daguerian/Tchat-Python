@@ -18,13 +18,22 @@ Reçu = True
 
 def Stop():		#Re-def only arret, a integrer plus bas dans un if
 	MessageArret = ('Arret du serveur')
-	MessageArret = MessageArret.encode('UTF-8')
-	client.send(MessageArret)
+	#MessageArret = MessageArret.encode('UTF-8')
+	client.send(MessageArret.encode('UTF-8'))
 	print ('Fermeture de la Connexion avec le client')
 	client.close()
 	print ('Arret du serveur')
 	serveur.close() #Appel a la variable serveur ligne 7
 
+def CommandList():
+	if Saisie.startwith(' -'):
+		if Saisie.lower == ('-InfoServeur'):
+			print ('Host: ', Host, 'Port: ', Port)
+
+		else:
+			pass
+	else:
+		pass
 
 def Reception():
 	global x
@@ -33,6 +42,8 @@ def Reception():
 		données = client.recv(1024)
 
 		Reçu = données.decode('UTF-8')
+		CommandList()	#Action en fonction d'une demande syntaxée
+		
 		if not Reçu:
 			print('Erreur de reception')
 			x += 1
@@ -42,8 +53,8 @@ def Reception():
 			break
 		if Reçu.lower() == ('deconnexion'):
 			print(NomClient,'deconecté')
-			Stop() 
 			break
+		
 		else:
 			print (NomClient, ' : ', Reçu)
 
@@ -69,10 +80,11 @@ ThreadReception.start()
 
 while True:
 
-	reponse = input('Saisissez: ')
-	reponseEncodée = reponse.encode('UTF-8')
-	n = client.send(reponseEncodée)
+	Saisie = input('Saisissez: ')
+	Reponse = Saisie.encode('UTF-8')
+	n = client.send(Reponse)
 	#if (n != len(reponseEncodée)):
+	CommandList()
 	if not n:
 		print ('Erreur d\'envoi')
 	if reponse.lower() == ('arret'):
