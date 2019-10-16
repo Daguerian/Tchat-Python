@@ -3,36 +3,31 @@ import sys
 import threading
 import time
 
-Host, Port = input('Adresse Host: '), 6789
 serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-try:
-	serveur.bind((Host, Port))
-except:
-	print ('Impossible dheberger le serveur sur ',Host, Port)
-	exit()
-
-print ('Serveur hebergé sur ',Host, Port, '\n', socket.gethostname())
-
 x = 0
-Reçu = True
+y = 0
+Reçu = 0
 
 def Stop():		#Re-def only arret, a integrer plus bas dans un if
-	MessageArret = ('Arret du serveur')
-	#MessageArret = MessageArret.encode('UTF-8')
+	MessageArret = ('!arret')
 	client.send(MessageArret.encode('UTF-8'))
 	print ('Fermeture de la Connexion avec le client')
 	client.close()
 	print ('Arret du serveur')
-	serveur.close() #Appel a la variable serveur ligne 7
+	serveur.close()
 
 def CommandList():
-	if Saisie.startwith(' -'):
-		if Saisie.lower == ('-InfoServeur'):
-			print ('Host: ', Host, 'Port: ', Port)
 
-		else:
-			pass
+	if Saisie.lower() == ('-infoserveur'):
+		print ('Host:', Host, '|  Port:', Port)
+	#if Saisie.lower() == ('-stop') or Saisie.lower() == ('-arret'):
+	#	Stop()
+	#	break
+	if Saisie.lower() == ('-infoclient'):
+		print (client, AdresseClient)
+
 	else:
+		print ('Commande non reconnue')
 		pass
 
 def Reception():
@@ -40,38 +35,43 @@ def Reception():
 	print ('Lancement Thread de reception')
 	while True:
 		données = client.recv(1024)
-
 		Reçu = données.decode('UTF-8')
-		CommandList()	#Action en fonction d'une demande syntaxée
 		
 		if not Reçu:
 			print('Erreur de reception')
 			x += 1
-		
 		if x == 5:
 			Stop()
 			break
-		if Reçu.lower() == ('deconnexion'):
+
+		if Reçu.lower() == ('-stop'):
 			print(NomClient,'deconecté')
+			client.close()
 			break
 		
 		else:
 			print (NomClient, ' : ', Reçu)
 
+#### Lancement Progamme ####
+
+Host, Port = input('Adresse Host: '), 6789
+try:
+	serveur.bind((Host, Port))
+except:
+	print ('Impossible d\'heberger le serveur sur {}:{}'.format(Host,Port))
+	exit()
+
+print ('Serveur hebergé sur ',Host, Port, '\n', 'Appareil', socket.gethostname())
+print ('En attente de connexion...\n')
 
 ThreadReception = threading.Thread(target=Reception)
-
-
-
-### Demarrage Programme ###
-print ('Serveur démarré. \nEn attente de connexion...\n')
+### Connexion du client
 serveur.listen(3) #3 connexions maxi
-client, AdresseClient = serveur.accept()  #client peux etre remplacé par Client1
+client, AdresseClient = serveur.accept()
 #Blocage tant que le client n'est pas connecté
 
 EnvoiNameServer = (socket.gethostname())			#Envoi Nom du serveur
-EnvoiNameServer = EnvoiNameServer.encode('UTF-8')
-client.send(EnvoiNameServer)
+client.send(EnvoiNameServer.encode('UTF-8'))
 
 données = client.recv(1024)							#Reception Nom du client
 NomClient = données.decode('UTF-8')
@@ -81,14 +81,19 @@ ThreadReception.start()
 while True:
 
 	Saisie = input('Saisissez: ')
-	Reponse = Saisie.encode('UTF-8')
-	n = client.send(Reponse)
-	#if (n != len(reponseEncodée)):
-	CommandList()
-	if not n:
-		print ('Erreur d\'envoi')
-	if reponse.lower() == ('arret'):
+
+	if Saisie.lower() == ('-arret'):
 		Stop()
 		break
+	y = Saisie.startswith('-',0,2)
+	if y:
+		CommandList()	#Action en fonction d'une demande syntaxée
+		y = 0
 	else:
-		print ('Envoyé.')
+		n = client.send(Saisie.encode('UTF-8'))
+		if not n:
+			print ('Erreur d\'envoi')
+		else:
+			print ('Envoyé.')
+
+#Apres arret, client non deconnecté /!\
