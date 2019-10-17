@@ -15,14 +15,16 @@ def Stop():		#Re-def only arret, a integrer plus bas dans un if
 	client.close()
 	print ('Arret du serveur')
 	serveur.close()
+	exit()
 
 def CommandList():
 
 	if Saisie.lower() == ('-infoserveur'):
 		print ('Host:', Host, '|  Port:', Port)
-	#if Saisie.lower() == ('-stop') or Saisie.lower() == ('-arret'):
-	#	Stop()
-	#	break
+
+	if Saisie.lower() == ('-stop') or Saisie.lower() == ('-arret'):
+		Stop()
+		
 	if Saisie.lower() == ('-infoclient'):
 		print (client, AdresseClient)
 
@@ -42,12 +44,14 @@ def Reception():
 			x += 1
 		if x == 5:
 			Stop()
-			break
+			exit()
 
-		if Reçu.lower() == ('-stop'):
+		if Reçu.lower() == ('!stop'):
 			print(NomClient,'deconecté')
 			client.close()
-			break
+			print ('Arret du serveur')
+			serveur.close()
+			exit()
 		
 		else:
 			print (NomClient, ' : ', Reçu)
@@ -82,10 +86,10 @@ while True:
 
 	Saisie = input('Saisissez: ')
 
-	if Saisie.lower() == ('-arret'):
-		Stop()
-		break
-	y = Saisie.startswith('-',0,2)
+	# if Saisie.lower() == ('-arret'):
+	# 	Stop()
+	# 	break
+	y = Saisie.startswith('-',0,2) #'-' entre 0 et 2, non inclus
 	if y:
 		CommandList()	#Action en fonction d'une demande syntaxée
 		y = 0
