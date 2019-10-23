@@ -19,7 +19,7 @@ def CommandList():
 		print ('### -stop\n')
 
 	if Saisie.lower() == ('-info') or Saisie.lower() == ('-infos'):
-		print ('### {}, connecté à NomServeur'.format(NomClient,NomServeur))
+		print ('### {}, connecté à {}'.format(NomClient,NomServeur))
 		print ('### sur {}:{}\n'.format(IPserveur,Port) )
 	
 	if Saisie.lower() == ('-name'):

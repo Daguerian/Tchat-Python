@@ -3,7 +3,7 @@ import sys
 import threading
 import time
 
-serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #ouverture du socket 
 x = 0
 y = 0
 Reçu = 0
@@ -17,7 +17,9 @@ def Stop():		#Re-def only arret, a integrer plus bas dans un if
 	serveur.close()
 	exit()
 
-def CommandList():
+def CommandList(): #Liste des commandes internes
+	if saisie.lower() == ('-help'):
+		print ('')
 
 	if Saisie.lower() == ('-infoserveur'):
 		print ('Host:', Host, '|  Port:', Port)
@@ -60,7 +62,7 @@ def Reception():
 
 Host, Port = input('Adresse Host: '), 6789
 try:
-	serveur.bind((Host, Port))
+	serveur.bind((Host, Port)) #Essaie de se connecter
 except:
 	print ('Impossible d\'heberger le serveur sur {}:{}'.format(Host,Port))
 	exit()
