@@ -1,12 +1,14 @@
+# -- coding: utf-8 --
+
 import socket
 import sys
 import threading
 import time
 
-serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #ouverture du socket 
+serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #ouverture du socket
 x = 0
 y = 0
-Reçu = 0
+Recu = 0
 
 def Stop():		#Re-def only arret, a integrer plus bas dans un if
 	MessageArret = ('!arret')
@@ -18,7 +20,7 @@ def Stop():		#Re-def only arret, a integrer plus bas dans un if
 	exit()
 
 def CommandList(): #Liste des commandes internes
-	if saisie.lower() == ('-help'):
+	if Saisie.lower() == ('-help'):
 		print ('')
 
 	if Saisie.lower() == ('-infoserveur'):
@@ -26,7 +28,7 @@ def CommandList(): #Liste des commandes internes
 
 	if Saisie.lower() == ('-stop') or Saisie.lower() == ('-arret'):
 		Stop()
-		
+
 	if Saisie.lower() == ('-infoclient'):
 		print (client, AdresseClient)
 
@@ -38,25 +40,25 @@ def Reception():
 	global x
 	print ('Lancement Thread de reception')
 	while True:
-		données = client.recv(1024)
-		Reçu = données.decode('UTF-8')
-		
-		if not Reçu:
+		donnees = client.recv(1024)
+		Recu = donnees.decode('UTF-8')
+
+		if not Recu:
 			print('Erreur de reception')
 			x += 1
 		if x == 5:
 			Stop()
 			exit()
 
-		if Reçu.lower() == ('!stop'):
+		if Recu.lower() == ('!stop'):
 			print(NomClient,'deconecté')
 			client.close()
 			print ('Arret du serveur')
 			serveur.close()
 			exit()
-		
+
 		else:
-			print (NomClient, ' : ', Reçu)
+			print (NomClient, ' : ', Recu)
 
 #### Lancement Progamme ####
 
@@ -67,7 +69,7 @@ except:
 	print ('Impossible d\'heberger le serveur sur {}:{}'.format(Host,Port))
 	exit()
 
-print ('Serveur hebergé sur ',Host, Port, '\n', 'Appareil', socket.gethostname())
+print ('Serveur hebergé sur ',Host, Port, '\n','Appareil', socket.gethostname())
 print ('En attente de connexion...\n')
 
 ThreadReception = threading.Thread(target=Reception)
@@ -79,8 +81,8 @@ client, AdresseClient = serveur.accept()
 EnvoiNameServer = (socket.gethostname())			#Envoi Nom du serveur
 client.send(EnvoiNameServer.encode('UTF-8'))
 
-données = client.recv(1024)							#Reception Nom du client
-NomClient = données.decode('UTF-8')
+donnees = client.recv(1024)							#Reception Nom du client
+NomClient = donnees.decode('UTF-8')
 print (NomClient,'connecté')
 ThreadReception.start()
 
