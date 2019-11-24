@@ -4,8 +4,7 @@ import threading
 import time
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-x = 0
-y = 0
+# y = 0 #Saisie.startwith()
 Reçu = 0
 Port = 6789
 
@@ -21,32 +20,36 @@ def CommandList():
 	if Saisie.lower() == ('-info') or Saisie.lower() == ('-infos'):
 		print ('### {}, connecté à {}'.format(NomClient,NomServeur))
 		print ('### sur {}:{}\n'.format(IPserveur,Port) )
-	
+
 	if Saisie.lower() == ('-name'):
 		print ('###Vous:',NomClient)
 		print ('###Serveur:', NomServeur,'\n')
-		
+
 
 	if Saisie.lower() == ('-stop'):
-		Message = ('!stop')
+		Message = ('!leave')
 		client.send(Message.encode('UTF-8'))
+		ThreadReception.join()
 		client.close()
 		print ('Deconnecté.')
 		exit()
+
+		#reception validatio nde deconnexion,
+		#puis arret du thread pour non blocage
 
 	else:
 		print('Commande non reconnue')
 
 def Reception():
-	global x
+	Erreur = 0
 	print ('Lancement Thread de reception')
 	while True:
 
 		Reçu = client.recv(1024).decode('UTF-8')
 		if not Reçu:
 			print ('Erreur de reception')
-			x += 1
-			if x == 5:
+			Erreur += 1
+			if Erreur == 5:
 				print ('Fermeture de la connexion')
 				client.close()
 				break
@@ -54,6 +57,8 @@ def Reception():
 				print ('Arret du serveur. Deconnexion client')
 				client.close()
 				exit()
+		if Reçu.lower() == ('!leaveok'):
+			break
 		else:
 			print(NomServeur,':',Reçu)
 ThreadReception = threading.Thread(target=Reception)
@@ -77,13 +82,18 @@ while True:
 while True:
 	NomClient = input('Saisissez votre nom: ')
 	if not NomClient:
-		print ('Entrée vide')
+		print ('Saisie vide')
+
 	else:
 		client.send(NomClient.encode('UTF-8'))
-		break
-
-données = client.recv(1024)				#Reception Nom Serveur
-NomServeur = données.decode('UTF-8')
+		print ('En attente de reponse...')
+		données = client.recv(1024)
+		t = données.decode('UTF-8')
+		if t == ('!name-already-used'):
+			print ('Ce nom est deja utilisé')
+		else:
+			break
+NomServeur = t
 print ('Connecté à', NomServeur,'sur {}:{}'.format(IPserveur,Port))
 print ('depuis',socket.gethostname())
 

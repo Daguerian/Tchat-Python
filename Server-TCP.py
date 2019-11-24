@@ -6,9 +6,12 @@ import threading
 import time
 
 serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #ouverture du socket
-x = 0
-y = 0
+#y = 0 #saisie.startwith()
 Recu = 0
+NomServeur = 'Tests ACERVER'
+ListeClients = []
+ListePseudoClients = []
+ListeThreadsClients = []
 
 def Stop():		#Re-def only arret, a integrer plus bas dans un if
 	MessageArret = ('!arret')
@@ -23,6 +26,9 @@ def CommandList(): #Liste des commandes internes
 	if Saisie.lower() == ('-help'):
 		print ('')
 
+	if Saisie.lower() == ('-liste') or Saisie.lower() == ('-clients'):
+		print ("Adresses des clients connectés:\n", ListeClients)
+		print ("Nom des clients connectés:\n", ListePseudoClients)
 	if Saisie.lower() == ('-infoserveur'):
 		print ('Host:', Host, '|  Port:', Port)
 
@@ -36,29 +42,51 @@ def CommandList(): #Liste des commandes internes
 		print ('Commande non reconnue')
 		pass
 
-def Reception():
-	global x
-	print ('Lancement Thread de reception')
+def Join():
+	serveur.listen(5)
+	while True:		#Boucle d'attente de nouvelle Connexion
+		client, AdresseClient = serveur.accept()
+		ListeClients.append(AdresseClient)
+		ThreadReception = threading.Thread(target=Reception, args = (client, AdresseClient))
+		ThreadReception.start()
+		ListeThreadsClients.append(ThreadReception)
+
+def Reception(client, AdresseClient):
+	x = 0
+	while True:		#Boucle verification de nom deja utilisé
+		PseudoClient = client.recv(1024).decode('UTF-8')
+		if PseudoClient in ListePseudoClients:
+			t = ('!name-already-used')
+			client.send(t.encode('UTF-8'))
+		else:
+			print (PseudoClient, "s'est connecté depuis",AdresseClient)
+			client.send(NomServeur.encode('UTF-8'))
+			ListePseudoClients.append(PseudoClient)
+			break
+
 	while True:
-		donnees = client.recv(1024)
-		Recu = donnees.decode('UTF-8')
+		data = client.recv(1024)
+		Recu = data.decode('UTF-8')
 
 		if not Recu:
 			print('Erreur de reception')
 			x += 1
-		if x == 5:
-			Stop()
-			exit()
 
-		if Recu.lower() == ('!stop'):
-			print(NomClient,'deconecté')
+		if x == 10:
+			print (AdresseClient, "déconnecté. \nTrop d'erreurs de reception")
 			client.close()
-			print ('Arret du serveur')
-			serveur.close()
-			exit()
 
+		if Recu.lower() == ('!leave'):
+			t = ('!leaveOK')
+			client.send(t.encode('UTF-8'))
+			print(AdresseClient,'deconecté')
+			# while AdresseClient in ListeClients:
+				ListeClients.remove(client)
+			# while PseudoClient in ListePseudoClients:
+				ListePseudoClients.remove(PseudoClient)
+			break
 		else:
-			print (NomClient, ' : ', Recu)
+			print (PseudoClient, ' : ', Recu)
 
 #### Lancement Progamme ####
 
@@ -69,22 +97,11 @@ except:
 	print ('Impossible d\'heberger le serveur sur {}:{}'.format(Host,Port))
 	exit()
 
-print ('Serveur hebergé sur ',Host, Port, '\n','Appareil', socket.gethostname())
+print ('Serveur hebergé sur ',Host, Port, '\nAppareil', socket.gethostname())
 print ('En attente de connexion...\n')
+ThreadJoinClients = threading.Thread(target = Join)
+ThreadJoinClients.start()
 
-ThreadReception = threading.Thread(target=Reception)
-### Connexion du client
-serveur.listen(3) #3 connexions maxi
-client, AdresseClient = serveur.accept()
-#Blocage tant que le client n'est pas connecté
-
-EnvoiNameServer = (socket.gethostname())			#Envoi Nom du serveur
-client.send(EnvoiNameServer.encode('UTF-8'))
-
-donnees = client.recv(1024)							#Reception Nom du client
-NomClient = donnees.decode('UTF-8')
-print (NomClient,'connecté')
-ThreadReception.start()
 
 while True:
 
@@ -98,7 +115,7 @@ while True:
 		CommandList()	#Action en fonction d'une demande syntaxée
 		y = 0
 	else:
-		n = client.send(Saisie.encode('UTF-8'))
+		n = serveur.sendto(Saisie.encode('UTF-8'),client in ListeClients)
 		if not n:
 			print ('Erreur d\'envoi')
 		else:
