@@ -33,9 +33,15 @@ def CommandList():
 		client.close()
 		print ('Deconnecté.')
 		exit()
-
-		#reception validatio nde deconnexion,
-		#puis arret du thread pour non blocage
+	####Commandes serveur ####
+	# if Saisie.lower() == ('-liste') or Saisie.lower() == ('list'):
+	# 	t = ('!listeusers')
+	# 	client.send(t.encode('UTF-8'))
+	# 	try:
+	# 		t = client.recv(1024)
+	# 		print (t.decode('UTF-8')) #a voir syntaxte, pour ne aps recevoir de message au même moment
+	# 	except:
+	# 		print ('Délai dépassé')
 
 	else:
 		print('Commande non reconnue')

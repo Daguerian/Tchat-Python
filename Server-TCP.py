@@ -51,7 +51,7 @@ def Join():
 		ThreadReception.start()
 		ListeThreadsClients.append(ThreadReception)
 
-def Reception(client, AdresseClient):
+def Reception(client, AdresseClient):	#à renommer "Gestion clients"
 	x = 0
 	while True:		#Boucle verification de nom deja utilisé
 		PseudoClient = client.recv(1024).decode('UTF-8')
@@ -75,16 +75,26 @@ def Reception(client, AdresseClient):
 		if x == 10:
 			print (AdresseClient, "déconnecté. \nTrop d'erreurs de reception")
 			client.close()
+		t = Recu.startswith('!',0,2)
+		if t:
 
-		if Recu.lower() == ('!leave'):
-			t = ('!leaveOK')
-			client.send(t.encode('UTF-8'))
-			print(AdresseClient,'deconecté')
-			# while AdresseClient in ListeClients:
-				ListeClients.remove(client)
-			# while PseudoClient in ListePseudoClients:
+			if Recu.lower() == ('!leave'):	#Demande de deconnexion depuis le client
+				t = ('!leaveOK')
+				client.send(t.encode('UTF-8')) #Envoi de confirmation de deconnexion
+				print(AdresseClient,'deconecté') #sendall plus tard
+				# while AdresseClient in ListeClients:
+				ListeClients.remove(AdresseClient)
+				# while PseudoClient in ListePseudoClients:
 				ListePseudoClients.remove(PseudoClient)
-			break
+				break
+
+			# if Recu.lower() == ('!listeusers'):
+			# 	t = ('Liste des clients connectés:', ListePseudoClients)
+			# 	client.send(t.encode('UTF-8'))
+			# 	print ('Liste des utilisateur envoyé à ', PseudoClient)
+
+			else:
+				print ("Commande '{}' de '{}' non reconnue".format(recu,PseudoClient))
 		else:
 			print (PseudoClient, ' : ', Recu)
 
