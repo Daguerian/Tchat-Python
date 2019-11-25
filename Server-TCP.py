@@ -9,15 +9,22 @@ serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #ouverture du socket
 #y = 0 #saisie.startwith()
 Recu = 0
 NomServeur = 'Tests ACERVER'
+ListeAddrClients = []
 ListeClients = []
 ListePseudoClients = []
 ListeThreadsClients = []
 
-def Stop():		#Re-def only arret, a integrer plus bas dans un if
-	MessageArret = ('!arret')
-	client.send(MessageArret.encode('UTF-8'))
-	print ('Fermeture de la Connexion avec le client')
-	client.close()
+def Stop():
+	for i in ListeClients:
+		print ("Fermeture de la Connexion avec", ListePseudoClients[0])
+		t = ('!arret')
+		ListeClients[0].send(t.encode('UTF-8')) #envoi au 1er de la liste
+		time.sleep(0.5) #Delais de reponse du client
+		ListeClients[0].close()
+		del ListeClients[0] #supprime les 1ers de chaque liste
+		del ListeAddrClients[0]
+		del ListePseudoClients[0]
+
 	print ('Arret du serveur')
 	serveur.close()
 	exit()
@@ -26,9 +33,11 @@ def CommandList(): #Liste des commandes internes
 	if Saisie.lower() == ('-help'):
 		print ('')
 
-	if Saisie.lower() == ('-liste') or Saisie.lower() == ('-clients'):
-		print ("Adresses des clients connectés:\n", ListeClients)
+	if Saisie.lower() == ('-liste') or Saisie.lower() == ('-list'):
+		print ("Adresses des clients connectés:\n", ListeAddrClients)
 		print ("Nom des clients connectés:\n", ListePseudoClients)
+		print ("Clients connectés: ", ListeClients)
+		print ("Liste Threads: ", ListeThreadsClients)
 	if Saisie.lower() == ('-infoserveur'):
 		print ('Host:', Host, '|  Port:', Port)
 
@@ -44,9 +53,11 @@ def CommandList(): #Liste des commandes internes
 
 def Join():
 	serveur.listen(5)
+	# serveur.setblocking(0) #defini comme non bloquant, mais non operationnel
 	while True:		#Boucle d'attente de nouvelle Connexion
 		client, AdresseClient = serveur.accept()
-		ListeClients.append(AdresseClient)
+		ListeAddrClients.append(AdresseClient)
+		ListeClients.append(client)
 		ThreadReception = threading.Thread(target=Reception, args = (client, AdresseClient))
 		ThreadReception.start()
 		ListeThreadsClients.append(ThreadReception)
@@ -78,16 +89,17 @@ def Reception(client, AdresseClient):	#à renommer "Gestion clients"
 		t = Recu.startswith('!',0,2)
 		if t:
 
-			if Recu.lower() == ('!leave'):	#Demande de deconnexion depuis le client
+			if Recu.lower() == ('!leave'): #Demande de deconnexion depuis le client
 				t = ('!leaveOK')
 				client.send(t.encode('UTF-8')) #Envoi de confirmation de deconnexion
 				print(AdresseClient,'deconecté') #sendall plus tard
-				# while AdresseClient in ListeClients:
-				ListeClients.remove(AdresseClient)
+				# while AdresseClient in ListeAddrClients:
+				ListeAddrClients.remove(AdresseClient)
 				# while PseudoClient in ListePseudoClients:
 				ListePseudoClients.remove(PseudoClient)
 				break
-
+			if Recu.lower() == ('!leaveok'): #confirmation deconnexion du client par le serveur
+				break
 			# if Recu.lower() == ('!listeusers'):
 			# 	t = ('Liste des clients connectés:', ListePseudoClients)
 			# 	client.send(t.encode('UTF-8'))
@@ -125,7 +137,7 @@ while True:
 		CommandList()	#Action en fonction d'une demande syntaxée
 		y = 0
 	else:
-		n = serveur.sendto(Saisie.encode('UTF-8'),client in ListeClients)
+		n = serveur.sendto(Saisie.encode('UTF-8'),client in ListeAddrClients)
 		if not n:
 			print ('Erreur d\'envoi')
 		else:

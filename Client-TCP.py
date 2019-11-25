@@ -59,11 +59,13 @@ def Reception():
 				print ('Fermeture de la connexion')
 				client.close()
 				break
-		if Reçu.lower() == ('!arret'):
-				print ('Arret du serveur. Deconnexion client')
-				client.close()
-				exit()
-		if Reçu.lower() == ('!leaveok'):
+		if Reçu.lower() == ('!arret'): #Arret du thread apres deconnexion volontaire du serveur
+			print ('Arret du serveur. Deconnexion client')
+			t = ('!leaveok')
+			client.send(t.encode('UTF-8'))
+			client.close()
+			break
+		if Reçu.lower() == ('!leaveok'): #Arret du Thread apres deconnexion volontaire du client
 			break
 		else:
 			print(NomServeur,':',Reçu)
