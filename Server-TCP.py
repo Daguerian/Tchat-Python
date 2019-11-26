@@ -55,15 +55,15 @@ def CommandList(): #Liste des commandes internes
 	elif Saisie.lower() == ('-info'):
 		print ('Host:', Host, '|  Port:', Port)
 
+	elif Saisie.lower() == ("-test"):
+		print (ListeClients)
 	#Commande arret deplacée sur boucle saisie, pour le break
 	# elif Saisie.lower() == ('-stop') or Saisie.lower() == ('-arret'):
 	# 	Stop()
 	# 	break
 
-	elif Saisie.lower() == ('-infoclient'):
-		print (client, AdresseClient)
-	elif Saisie.lower() == ("-test"):
-		print (ListeClients)
+
+
 	else:
 		print ('Commande non reconnue')
 		pass
@@ -131,6 +131,9 @@ def Reception(client, AdresseClient):	#à renommer "Gestion clients"
 				print ("Commande '{}' de '{}' non reconnue".format(recu,PseudoClient))
 		else:
 			print (PseudoClient, ':', Recu)
+			for i in range(len(ListeClients)):
+				t = str((PseudoClient,':',Recu))
+				ListeClients[i].send(t.encode('UTF-8'))
 
 #### Lancement Progamme ####
 
@@ -160,10 +163,14 @@ while True:
 			CommandList()	#Action en fonction d'une demande syntaxée
 			y = 0
 	else:
-		n = serveur.sendto(Saisie.encode('UTF-8'),client in ListeAddrClients)
-		if not n:
-			print ('Erreur d\'envoi')
-		else:
-			print ('Envoyé.')
+		for i in range(len(ListeClients)):
+			Envoi = (NomServeur,':',Saisie)
+			type(NomServeur)
+			type(Saisie)
+			n = ListeClients[i].send(Envoi.encode('UTF-8'))
+			if not n:
+				print ('Erreur d\'envoi vers', ListePseudoClients[i])
+			else:
+				print ('Envoyé.')
 
 #Apres arret, client non deconnecté /!\

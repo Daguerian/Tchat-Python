@@ -5,7 +5,7 @@ import time
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # y = 0 #Saisie.startwith()
-Recu = '_init_'
+Recu = str()
 Port = 6789
 
 def CommandList():
@@ -65,7 +65,7 @@ def Reception():
 		if Recu.lower() == ('!leaveok'): #Arret du Thread apres deconnexion volontaire du client
 			break
 		else:
-			print(NomServeur,':',Recu)
+			print(Recu)
 ThreadReception = threading.Thread(target=Reception)
 
 #### Lancement Programme ####
