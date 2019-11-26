@@ -11,12 +11,13 @@ Port = 6789
 def CommandList():
 
 	if Saisie.lower() == ('-help'):
-		print ("######################################################")
-		print ("### Commandes disponibles ###                      ###")
-		print ("### -help    Affiche cette page d'aide             ###")
-		print ("### -info    Affiche les infos sur la connexion    ###")
-		print ("### -stop    Deconnecte le client du serveur       ###")
-		print ("######################################################")
+		print ("#######################################################")
+		print ("###          ### Commandes disponibles ###          ###")
+		print ("###                                                 ###")
+		print ("### -help    Affiche cette page d'aide              ###")
+		print ("### -info    Affiche les infos sur la connexion     ###")
+		print ("### -stop    Deconnecte le client du serveur        ###")
+		print ("#######################################################")
 
 	elif Saisie.lower() == ('-info') or Saisie.lower() == ('-infos'):
 		print ('### {}, connecté à {}'.format(NomClient,NomServeur))
@@ -68,7 +69,10 @@ def Reception():
 			print(Recu)
 ThreadReception = threading.Thread(target=Reception)
 
+
+
 #### Lancement Programme ####
+
 print ('Client demarré \nConnexion au serveur')
 
 while True:
@@ -88,6 +92,9 @@ while True:
 	NomClient = input('Saisissez votre nom: ')
 	if not NomClient:
 		print ('Saisie vide')
+	elif len(NomClient) > 12:
+		print ('Trop long ! 12 caracteres maxi')
+	#elif ListeCaracetresInterdis in NomClient:
 
 	else:
 		client.send(NomClient.encode('UTF-8'))
@@ -105,7 +112,7 @@ print ('depuis',socket.gethostname())
 ThreadReception.start()
 
 while True:
-	Saisie = input('Saisissez: ')
+	Saisie = input('> ')
 	y = Saisie.startswith('-',0,2) #Saisie commence par '-' entre le caractere 0 et 2 (non inclus)
 
 	if Recu.lower() == ("!leaveok") or Recu.lower() == ("!arret"):

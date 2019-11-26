@@ -36,7 +36,8 @@ def Stop():
 def CommandList(): #Liste des commandes internes
 	if Saisie.lower() == ('-help'):
 		print ("#############################################################")
-		print ("### Commandes disponibles ###                             ###")
+		print ("###             ### Commandes disponibles ###             ###")
+		print ("###                                                       ###")
 		print ("### -help     Affiche cette page d'aide                   ###")
 		print ("### -list     Affiche la liste des clients connectés      ###")
 		print ("### -thread   Affiche la liste des Threads lancés/arretés ###")
@@ -135,6 +136,8 @@ def Reception(client, AdresseClient):	#à renommer "Gestion clients"
 				t = str((PseudoClient,':',Recu))
 				ListeClients[i].send(t.encode('UTF-8'))
 
+
+
 #### Lancement Progamme ####
 
 Host, Port = input('Adresse Host: '), 6789
@@ -152,7 +155,7 @@ ThreadJoinClients.start()
 
 while True:
 
-	Saisie = input('Saisissez: ')
+	Saisie = input('> ')
 
 	y = Saisie.startswith('-',0,2) #'-' entre 0 et 2, non inclus
 	if y:
@@ -164,13 +167,9 @@ while True:
 			y = 0
 	else:
 		for i in range(len(ListeClients)):
-			Envoi = (NomServeur,':',Saisie)
-			type(NomServeur)
-			type(Saisie)
+			Envoi = str((NomServeur,':',Saisie))
 			n = ListeClients[i].send(Envoi.encode('UTF-8'))
 			if not n:
 				print ('Erreur d\'envoi vers', ListePseudoClients[i])
 			else:
 				print ('Envoyé.')
-
-#Apres arret, client non deconnecté /!\
