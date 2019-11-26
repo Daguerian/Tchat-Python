@@ -7,6 +7,8 @@ import time
 
 serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #ouverture du socket
 #y = 0 #saisie.startwith()
+serveur.setblocking(0) #socket serveur non bloquant, exemple serveur.accept
+Saisie = 0 #Initialisation de la Saisie, pour le def Join()
 Recu = 0
 NomServeur = 'Tests ACERVER'
 ListeAddrClients = []
@@ -15,7 +17,10 @@ ListePseudoClients = []
 ListeThreadsClients = []
 
 def Stop():
-	for i in ListeClients:
+
+	for i in range(len(ListeClients)):
+		print (i)
+	# for i in ListeClients:
 		print ("Fermeture de la Connexion avec", ListePseudoClients[0])
 		t = ('!arret')
 		ListeClients[0].send(t.encode('UTF-8')) #envoi au 1er de la liste
@@ -27,41 +32,59 @@ def Stop():
 
 	print ('Arret du serveur')
 	serveur.close()
-	exit()
 
 def CommandList(): #Liste des commandes internes
 	if Saisie.lower() == ('-help'):
-		print ('')
+		print ("#############################################################")
+		print ("### Commandes disponibles ###                             ###")
+		print ("### -help     Affiche cette page d'aide                   ###")
+		print ("### -list     Affiche la liste des clients connectés      ###")
+		print ("### -thread   Affiche la liste des Threads lancés/arretés ###")
+		print ("### -info     Affiche les information du serveur          ###")
+		print ("### -stop     Arrete le serveur et deconnecte les clients ###")
+		print ("#############################################################")
 
-	if Saisie.lower() == ('-liste') or Saisie.lower() == ('-list'):
+	elif Saisie.lower() == ('-liste') or Saisie.lower() == ('-list'):
+		print (len(ListeClients), "clients connectés")
 		print ("Adresses des clients connectés:\n", ListeAddrClients)
 		print ("Nom des clients connectés:\n", ListePseudoClients)
-		print ("Clients connectés: ", ListeClients)
+
+	elif Saisie.lower() == ('-thread'):
 		print ("Liste Threads: ", ListeThreadsClients)
-	if Saisie.lower() == ('-infoserveur'):
+
+	elif Saisie.lower() == ('-info'):
 		print ('Host:', Host, '|  Port:', Port)
 
-	if Saisie.lower() == ('-stop') or Saisie.lower() == ('-arret'):
-		Stop()
+	#Commande arret deplacée sur boucle saisie, pour le break
+	# elif Saisie.lower() == ('-stop') or Saisie.lower() == ('-arret'):
+	# 	Stop()
+	# 	break
 
-	if Saisie.lower() == ('-infoclient'):
+	elif Saisie.lower() == ('-infoclient'):
 		print (client, AdresseClient)
-
+	elif Saisie.lower() == ("-test"):
+		print (ListeClients)
 	else:
 		print ('Commande non reconnue')
 		pass
 
 def Join():
 	serveur.listen(5)
-	# serveur.setblocking(0) #defini comme non bloquant, mais non operationnel
+	# serveur.setblocking(False) #defini comme non bloquant, mais non operationnel
 	while True:		#Boucle d'attente de nouvelle Connexion
-		client, AdresseClient = serveur.accept()
-		ListeAddrClients.append(AdresseClient)
-		ListeClients.append(client)
-		ThreadReception = threading.Thread(target=Reception, args = (client, AdresseClient))
-		ThreadReception.start()
-		ListeThreadsClients.append(ThreadReception)
-
+		try:
+			client, AdresseClient = serveur.accept()
+			ListeAddrClients.append(AdresseClient)
+			ListeClients.append(client)
+			ThreadReception = threading.Thread(target=Reception, args = (client, AdresseClient))
+			ThreadReception.start()
+			ListeThreadsClients.append(ThreadReception)
+		except:
+			pass
+		if Saisie == ("-stop"):
+			break
+		else:
+			time.sleep(0.1)
 def Reception(client, AdresseClient):	#à renommer "Gestion clients"
 	x = 0
 	while True:		#Boucle verification de nom deja utilisé
@@ -93,10 +116,9 @@ def Reception(client, AdresseClient):	#à renommer "Gestion clients"
 				t = ('!leaveOK')
 				client.send(t.encode('UTF-8')) #Envoi de confirmation de deconnexion
 				print(AdresseClient,'deconecté') #sendall plus tard
-				# while AdresseClient in ListeAddrClients:
 				ListeAddrClients.remove(AdresseClient)
-				# while PseudoClient in ListePseudoClients:
 				ListePseudoClients.remove(PseudoClient)
+				ListeClients.remove(client)
 				break
 			if Recu.lower() == ('!leaveok'): #confirmation deconnexion du client par le serveur
 				break
@@ -108,7 +130,7 @@ def Reception(client, AdresseClient):	#à renommer "Gestion clients"
 			else:
 				print ("Commande '{}' de '{}' non reconnue".format(recu,PseudoClient))
 		else:
-			print (PseudoClient, ' : ', Recu)
+			print (PseudoClient, ':', Recu)
 
 #### Lancement Progamme ####
 
@@ -129,13 +151,14 @@ while True:
 
 	Saisie = input('Saisissez: ')
 
-	# if Saisie.lower() == ('-arret'):
-	# 	Stop()
-	# 	break
 	y = Saisie.startswith('-',0,2) #'-' entre 0 et 2, non inclus
 	if y:
-		CommandList()	#Action en fonction d'une demande syntaxée
-		y = 0
+		if Saisie.lower() == ('-stop') or Saisie.lower() == ('-arret'):
+			Stop()
+			break
+		else:
+			CommandList()	#Action en fonction d'une demande syntaxée
+			y = 0
 	else:
 		n = serveur.sendto(Saisie.encode('UTF-8'),client in ListeAddrClients)
 		if not n:

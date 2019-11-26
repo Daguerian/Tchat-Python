@@ -5,28 +5,24 @@ import time
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # y = 0 #Saisie.startwith()
-Reçu = 0
+Recu = '_init_'
 Port = 6789
 
 def CommandList():
 
 	if Saisie.lower() == ('-help'):
-		print ('### Commandes disponibles:')
-		print ('### -help')
-		print ('### -info')
-		print ('### -name')
-		print ('### -stop\n')
+		print ("######################################################")
+		print ("### Commandes disponibles ###                      ###")
+		print ("### -help    Affiche cette page d'aide             ###")
+		print ("### -info    Affiche les infos sur la connexion    ###")
+		print ("### -stop    Deconnecte le client du serveur       ###")
+		print ("######################################################")
 
-	if Saisie.lower() == ('-info') or Saisie.lower() == ('-infos'):
+	elif Saisie.lower() == ('-info') or Saisie.lower() == ('-infos'):
 		print ('### {}, connecté à {}'.format(NomClient,NomServeur))
 		print ('### sur {}:{}\n'.format(IPserveur,Port) )
 
-	if Saisie.lower() == ('-name'):
-		print ('###Vous:',NomClient)
-		print ('###Serveur:', NomServeur,'\n')
-
-
-	if Saisie.lower() == ('-stop'):
+	elif Saisie.lower() == ('-stop'):
 		Message = ('!leave')
 		client.send(Message.encode('UTF-8'))
 		ThreadReception.join()
@@ -47,28 +43,29 @@ def CommandList():
 		print('Commande non reconnue')
 
 def Reception():
+	global Recu
 	Erreur = 0
 	print ('Lancement Thread de reception')
 	while True:
 
-		Reçu = client.recv(1024).decode('UTF-8')
-		if not Reçu:
+		Recu = client.recv(1024).decode('UTF-8')
+		if not Recu:
 			print ('Erreur de reception')
 			Erreur += 1
 			if Erreur == 5:
 				print ('Fermeture de la connexion')
 				client.close()
 				break
-		if Reçu.lower() == ('!arret'): #Arret du thread apres deconnexion volontaire du serveur
+		if Recu.lower() == ('!arret'): #Arret du thread apres deconnexion volontaire du serveur
 			print ('Arret du serveur. Deconnexion client')
 			t = ('!leaveok')
 			client.send(t.encode('UTF-8'))
 			client.close()
 			break
-		if Reçu.lower() == ('!leaveok'): #Arret du Thread apres deconnexion volontaire du client
+		if Recu.lower() == ('!leaveok'): #Arret du Thread apres deconnexion volontaire du client
 			break
 		else:
-			print(NomServeur,':',Reçu)
+			print(NomServeur,':',Recu)
 ThreadReception = threading.Thread(target=Reception)
 
 #### Lancement Programme ####
@@ -109,17 +106,24 @@ ThreadReception.start()
 
 while True:
 	Saisie = input('Saisissez: ')
-
 	y = Saisie.startswith('-',0,2) #Saisie commence par '-' entre le caractere 0 et 2 (non inclus)
-	if y:
+
+	if Recu.lower() == ("!leaveok") or Recu.lower() == ("!arret"):
+		break
+
+	elif y:
 		CommandList()
 		y = 0
 
 	else:
 		Message = Saisie.encode('utf-8')
-		n = client.send (Message)	#Envoi du message
+		try:
+			n = client.send (Message)	#Envoi du message
+		except:
+			print ("Impossible d'envoyer le message")
+			break
 		if (n!= len(Saisie)) or Saisie == (''):
-			print ('Erreur d\'envoi')
+			print ('Erreur d\'envoi/ saisie vide')
 		else:
 			#client.send(Saisie.encode('UTF-8'))
 			print ('Message envoyé.')
