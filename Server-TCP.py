@@ -134,6 +134,10 @@ def Reception(client, AdresseClient):	#à renommer "Gestion clients"
 			print (PseudoClient, ':', Recu)
 			for i in range(len(ListeClients)):
 				t = str((PseudoClient,':',Recu))
+				t = t.replace('(',"")
+				t = t.replace(')',"")
+				t = t.replace(',',"")
+				t = t.replace("'","")
 				ListeClients[i].send(t.encode('UTF-8'))
 
 
@@ -168,6 +172,10 @@ while True:
 	else:
 		for i in range(len(ListeClients)):
 			Envoi = str((NomServeur,':',Saisie))
+			Envoi = Envoi.replace('(','')
+			Envoi = Envoi.replace(')','')
+			Envoi = Envoi.replace(',','')
+			Envoi = Envoi.replace("'",'')
 			n = ListeClients[i].send(Envoi.encode('UTF-8'))
 			if not n:
 				print ('Erreur d\'envoi vers', ListePseudoClients[i])

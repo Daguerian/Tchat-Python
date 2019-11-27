@@ -8,6 +8,7 @@ client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 Recu = str()
 Port = 6789
 
+
 def CommandList():
 
 	if Saisie.lower() == ('-help'):
