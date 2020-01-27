@@ -144,7 +144,8 @@ def Reception(client, AdresseClient):	#à renommer "Gestion clients"
 
 #### Lancement Progamme ####
 
-Host, Port = input('Adresse Host: '), 6789
+# Host, Port = input('Adresse Host: '), 6789
+Host,Port = "192.168.1.15",6789
 try:
 	serveur.bind((Host, Port)) #Essaie de se connecter
 except:
