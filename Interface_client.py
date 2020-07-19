@@ -21,8 +21,8 @@ class Fenetre(QWidget):
         exitAction.triggered.connect(qApp.exit)
 
         client_text = QLabel("Fenetre client")
-        self.bouton1 = QPushButton("Bouton 1")
-        
+        self.bouton1 = QPushButton("Quitter")
+        self.bouton1.clicked.connect(app.quit)
         layout = QVBoxLayout()
         layout.addWidget(client_text)
         layout.addWidget(self.bouton1)
